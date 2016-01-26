@@ -31,7 +31,7 @@ router.post('/posts', function(req, res, next) {
 });
 
 
-/*create a route for preloading 'post' objects*/
+/* create a route for preloading 'post' objects */
 router.param('post', function(req, res, next, id) {
   var query = Post.findById(id);
 
@@ -44,7 +44,7 @@ router.param('post', function(req, res, next, id) {
   });
 });
 
-/*use the populate() function to retrive comments along with posts*/
+/* use the populate() function to retrive comments along with posts */
 router.get('/posts/:post', function(req, res) {
   // privious version: res.json(post);
   req.post.populate('comments', function(err, post) {
@@ -71,7 +71,7 @@ router.get('/comments', function(req, res, next) {
   });
 });
 
-/*create a route for preloading 'comment' objects -- by K.G*/
+/* create a route for preloading 'comment' objects -- by K.G */
 router.param('comment', function(req, res, next, id) {
   var query = Comment.findById(id);
 
@@ -85,7 +85,7 @@ router.param('comment', function(req, res, next, id) {
 });
 
 
-/*create comments route for a particular post*/
+/* create comments route for a particular post */
 router.post('/posts/:post/comments', function(req, res, next) {
   var comment = new Comment(req.body);
   comment.post = req.post;
@@ -102,7 +102,7 @@ router.post('/posts/:post/comments', function(req, res, next) {
   });
 });
 
-/*-- by K.G*/
+/* -- by K.G */
 router.put('/posts/:post/comments/:comment/upvote', function(req, res, next) {
   req.comment.upvote(function(err, comment){
     if (err) { return next(err); }
