@@ -1,16 +1,29 @@
 var app = angular.module('flapperNews', ['ui.router']);
 
-app.factory('posts', [function(){
+app.factory('posts', ['$http', function($http){
 	var o = {
-		posts: [
-			{title: 'post 1', link:'#', upvotes: 5},
-			{title: 'post 2', link:'#', upvotes: 2},
-			{title: 'post 3', link:'#', upvotes: 15},
-			{title: 'post 4', link:'#', upvotes: 9},
-			{title: 'post 5', link:'#', upvotes: 4}
-		]
+		posts: []
 	};
-	return o;
+
+	o.getAll = function(){
+		return $http.get('/posts').success(function(data){
+			angular.copy(data, o.posts);  // use angluar.copy() method to create a deep copy of the returned data
+		});
+	};
+
+	o.create = function(post){
+		return $http.post('/posts', post).success(function(data){
+			o.posts.push(data);
+		});
+	};
+
+	o.upvote = function(post){
+		return $http.put('/posts/' + post._id + '/upvote').success(function(data){
+			post.upvotes += 1;
+		});
+	};
+
+  	return o;
 }]);
 
 app.config([
@@ -20,11 +33,16 @@ function($stateProvider, $urlRouterProvider){
 	$stateProvider.state('home',{
 		url: '/home',
 		templateUrl:'/home.html',
-		controller: 'MainCtrl'
+		controller: 'MainCtrl',
+		resolve:{
+			postPromise:['posts', function(posts){
+				return posts.getAll();
+			}]
+		}
 	}).state('posts',{
 		url: '/posts/{id}',
 		templateUrl:'/posts.html',
-		controller: 'PostCtrl'
+		controller: 'PostsCtrl'
 	});
 	$urlRouterProvider.otherwise('home');
 }])
@@ -38,14 +56,9 @@ function($scope, posts){
 
 	$scope.addPost = function(){
 		if(!$scope.title || $scope.title === '') return;
-		$scope.posts.push({
-			title: $scope.title, 
-			link: $scope.link,
-			upvotes: 0,
-			comments:[
-			{author: 'Joe', body:'Cool post!', upvotes: 0},
-			{author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
-			]
+		posts.create({
+			title: $scope.title,
+			link: $scope.link
 		});
 
 		$scope.title = '';
@@ -53,7 +66,7 @@ function($scope, posts){
 	};
 
 	$scope.incrementUpvotes = function(post){
-		post.upvotes += 1;
+		posts.upvote(post);
 	}
 }]);
 
