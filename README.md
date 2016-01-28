@@ -1,0 +1,1 @@
+"A web application using MEAN stack including building a REST interface with Express.js on top of Node.js and using that interface to perform CRUD operations on the mongo db via an Angular JS frontend" 
